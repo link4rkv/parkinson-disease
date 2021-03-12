@@ -8,10 +8,11 @@ from sklearn.metrics import accuracy_score
 
 import xgboost import XGBClassifier
 
+# Read the data
 X = pd.read_csv("../input/parkinson-disease-detection/Parkinsson disease.csv")
 X.head()
 
-
+# Remove rows with missing target, separate target from predictors
 X.dropna(axis = 0, subset = ['status'], inplace = True)
 y = X.status
 X.drop(['status'], axis = 1, inplace = True)
@@ -32,16 +33,22 @@ X = X[cols]
 X = pd.get_dummies(X)
 X.head()
 
+# Scale the data from -1 to 1
 minmax_scaling(X, columns = X.columns, min_val = -1, max_val = 1)
 X.head()
 
+# Break off validation set from training data
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, train_size = 0.8, test_size = 0.2, random_state = 0)
 
+# Define the model
 model = XGBClassifier(random_state = 0, disable_default_eval_metric = True, use_label_encoder = False)
 
+# Fit the model
 model.fit(X_train, y_train)
 
+# Predict on X_valid
 predictions = model.predict(X_valid)
 
+# Error and accuracy analysis
 print(mean_absolute_error(predictions, y_valid))
 print(accuracy_score(y_valid, predictions) * 100)
